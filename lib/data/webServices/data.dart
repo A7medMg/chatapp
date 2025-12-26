@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../view/screen/homeScreen.dart';
 import 'cache.dart';
@@ -68,6 +70,7 @@ class DataMethods {
     }
   }
 
+
   Future<void> signIn({
     required String email,
     required String password,
@@ -78,6 +81,8 @@ class DataMethods {
         email: email,
         password: password,
       );
+      CacheHelper().saveEmail(email);
+      // ✅ Success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.green,
@@ -97,9 +102,11 @@ class DataMethods {
 
       );
       Timer(Duration(seconds: 2), () {
+        CacheHelper.saveLogin(true);
+        CacheHelper().saveEmail(email);
         Navigator.pushReplacementNamed(context, Homescreen.id);
       });
-      CacheHelper.saveLogin(true);
+
 
 
     } on FirebaseAuthException catch (e) {
@@ -121,5 +128,18 @@ class DataMethods {
         ),
       );
     }
+  }
+  Future<void> addUser(String message,CollectionReference messages)async {
+    final prefs = await SharedPreferences.getInstance();
+
+    return messages
+        .add({
+      'text': message,
+      'timestamp': FieldValue.serverTimestamp(),
+      "email":prefs.getString('email')
+
+    })
+        .then((value) => print("User Added"))
+        .catchError((error) => print("Failed to add user: $error"));
   }
 }

@@ -6,10 +6,13 @@ import 'package:chatapp/view/screen/onBording/onBording.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import 'data/webServices/cache.dart';
 import 'firebase_options.dart';
 
 void main()async {
+
   WidgetsFlutterBinding.ensureInitialized();
+  await CacheHelper.init();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
